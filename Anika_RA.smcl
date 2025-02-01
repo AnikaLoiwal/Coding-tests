@@ -1,0 +1,948 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Admin\Documents\Anika_RA_CEDA.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}22 Apr 2024, 23:29:49
+
+{com}. do "C:\Users\Admin\AppData\Local\Temp\STD3a74_000000.tmp"
+{txt}
+{com}. global dir "C:\Users\Admin\Documents\NSS 61 (4)\NSS 61"
+{txt}
+{com}. global data "$dir\data"
+{txt}
+{com}. 
+. 
+. *i Load the household level data (level01)
+. use "$data\level01.dta", clear
+{txt}
+{com}. rename mpce_30_days mpce 
+{res}{txt}
+{com}. destring mpce, replace 
+{txt}mpce: all characters numeric; {res}replaced {txt}as {res}long
+{txt}
+{com}. destring hh_size, replace 
+{txt}hh_size: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}
+{com}. 
+. *Calculate monthly per capita consumption expenditure
+. gen per_capita_expenditure = mpce / hh_size
+{txt}
+{com}. gen states=substr(state_region,1,2)
+{txt}
+{com}. destring states, replace 
+{txt}states: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}
+{com}. label define states 1 Jammu_and_Kashmir 2 Himachal_Pradesh 3 Punjab 4 Chandigarh 5 Uttaranchal 6 Haryana 7 Delhi 8 Rajasthan 9 Uttar_Pradesh 10 Bihar 11 Sikkim 12 Arunachal_Pradesh 13 Nagaland 14 Manipur 15 Mizoram  16 Tripura 17 Meghalaya         18 Assam 19 West_Bengal 20 Jharkhand 21 Orissa  22 Chhattisgarh 23 Madhya_Pradesh 24 Gujrat 25 Daman_and_Diu 26 Dadra_and_Nagar_Haveli 27 Maharastra 28 Andhra_Pradesh 29 Karnataka 30 Goa 31 Lakshadweep 32 Kerala 33 Tamil_Nadu 34 Pondicheri 35 Andaman_and_Nicober 
+{txt}
+{com}. label values states states
+{txt}
+{com}. tab states
+
+                {txt}states {c |}      Freq.     Percent        Cum.
+{hline 23}{c +}{hline 35}
+     Jammu_and_Kashmir {c |}{res}      2,772        2.22        2.22
+{txt}      Himachal_Pradesh {c |}{res}      2,545        2.04        4.26
+{txt}                Punjab {c |}{res}      4,289        3.44        7.70
+{txt}            Chandigarh {c |}{res}        380        0.30        8.01
+{txt}           Uttaranchal {c |}{res}      2,214        1.78        9.79
+{txt}               Haryana {c |}{res}      2,717        2.18       11.96
+{txt}                 Delhi {c |}{res}      1,176        0.94       12.91
+{txt}             Rajasthan {c |}{res}      5,166        4.14       17.05
+{txt}         Uttar_Pradesh {c |}{res}     11,212        8.99       26.04
+{txt}                 Bihar {c |}{res}      5,754        4.62       30.66
+{txt}                Sikkim {c |}{res}      1,120        0.90       31.56
+{txt}     Arunachal_Pradesh {c |}{res}      2,042        1.64       33.19
+{txt}              Nagaland {c |}{res}      1,280        1.03       34.22
+{txt}               Manipur {c |}{res}      3,177        2.55       36.77
+{txt}               Mizoram {c |}{res}      1,913        1.53       38.30
+{txt}               Tripura {c |}{res}      2,320        1.86       40.16
+{txt}             Meghalaya {c |}{res}      1,596        1.28       41.44
+{txt}                 Assam {c |}{res}      4,249        3.41       44.85
+{txt}           West_Bengal {c |}{res}      7,877        6.32       51.17
+{txt}             Jharkhand {c |}{res}      3,417        2.74       53.91
+{txt}                Orissa {c |}{res}      5,022        4.03       57.94
+{txt}          Chhattisgarh {c |}{res}      2,798        2.24       60.18
+{txt}        Madhya_Pradesh {c |}{res}      5,914        4.74       64.93
+{txt}                Gujrat {c |}{res}      4,274        3.43       68.35
+{txt}         Daman_and_Diu {c |}{res}        160        0.13       68.48
+{txt}Dadra_and_Nagar_Haveli {c |}{res}        240        0.19       68.68
+{txt}            Maharastra {c |}{res}     10,031        8.05       76.72
+{txt}        Andhra_Pradesh {c |}{res}      8,428        6.76       83.48
+{txt}             Karnataka {c |}{res}      5,109        4.10       87.58
+{txt}                   Goa {c |}{res}        400        0.32       87.90
+{txt}           Lakshadweep {c |}{res}        199        0.16       88.06
+{txt}                Kerala {c |}{res}      5,248        4.21       92.27
+{txt}            Tamil_Nadu {c |}{res}      8,298        6.66       98.92
+{txt}            Pondicheri {c |}{res}        720        0.58       99.50
+{txt}   Andaman_and_Nicober {c |}{res}        623        0.50      100.00
+{txt}{hline 23}{c +}{hline 35}
+                 Total {c |}{res}    124,680      100.00
+{txt}
+{com}. 
+. *Calculate the mean per capita expenditure for each state
+. preserve
+{txt}
+{com}. collapse (mean) per_capita_expenditure, by(states)
+{txt}
+{com}. list states per_capita_expenditure 
+{txt}
+     {c TLC}{hline 24}{c -}{hline 10}{c TRC}
+     {c |} {res}                states   per_ca~e {txt}{c |}
+     {c LT}{hline 24}{c -}{hline 10}{c RT}
+  1. {c |} {res}     Jammu_and_Kashmir   901.3737 {txt}{c |}
+  2. {c |} {res}      Himachal_Pradesh   987.9075 {txt}{c |}
+  3. {c |} {res}                Punjab   1064.948 {txt}{c |}
+  4. {c |} {res}            Chandigarh   1683.383 {txt}{c |}
+  5. {c |} {res}           Uttaranchal   823.6329 {txt}{c |}
+     {c LT}{hline 24}{c -}{hline 10}{c RT}
+  6. {c |} {res}               Haryana   968.6159 {txt}{c |}
+  7. {c |} {res}                 Delhi    1667.52 {txt}{c |}
+  8. {c |} {res}             Rajasthan    771.715 {txt}{c |}
+  9. {c |} {res}         Uttar_Pradesh   663.9052 {txt}{c |}
+ 10. {c |} {res}                 Bihar    551.989 {txt}{c |}
+     {c LT}{hline 24}{c -}{hline 10}{c RT}
+ 11. {c |} {res}                Sikkim   872.0922 {txt}{c |}
+ 12. {c |} {res}     Arunachal_Pradesh   1229.085 {txt}{c |}
+ 13. {c |} {res}              Nagaland    1221.29 {txt}{c |}
+ 14. {c |} {res}               Manipur   687.4878 {txt}{c |}
+ 15. {c |} {res}               Mizoram   27306.47 {txt}{c |}
+     {c LT}{hline 24}{c -}{hline 10}{c RT}
+ 16. {c |} {res}               Tripura   682.0373 {txt}{c |}
+ 17. {c |} {res}             Meghalaya   889.6759 {txt}{c |}
+ 18. {c |} {res}                 Assam   713.8502 {txt}{c |}
+ 19. {c |} {res}           West_Bengal   789.4088 {txt}{c |}
+ 20. {c |} {res}             Jharkhand   631.4784 {txt}{c |}
+     {c LT}{hline 24}{c -}{hline 10}{c RT}
+ 21. {c |} {res}                Orissa   550.5059 {txt}{c |}
+ 22. {c |} {res}          Chhattisgarh   643.2411 {txt}{c |}
+ 23. {c |} {res}        Madhya_Pradesh   649.9215 {txt}{c |}
+ 24. {c |} {res}                Gujrat   963.0562 {txt}{c |}
+ 25. {c |} {res}         Daman_and_Diu   1285.922 {txt}{c |}
+     {c LT}{hline 24}{c -}{hline 10}{c RT}
+ 26. {c |} {res}Dadra_and_Nagar_Haveli   921.5092 {txt}{c |}
+ 27. {c |} {res}            Maharastra    1013.49 {txt}{c |}
+ 28. {c |} {res}        Andhra_Pradesh   800.4113 {txt}{c |}
+ 29. {c |} {res}             Karnataka   836.1728 {txt}{c |}
+ 30. {c |} {res}                   Goa   1161.671 {txt}{c |}
+     {c LT}{hline 24}{c -}{hline 10}{c RT}
+ 31. {c |} {res}           Lakshadweep   1223.882 {txt}{c |}
+ 32. {c |} {res}                Kerala   1184.443 {txt}{c |}
+ 33. {c |} {res}            Tamil_Nadu   904.9949 {txt}{c |}
+ 34. {c |} {res}            Pondicheri     993.35 {txt}{c |}
+ 35. {c |} {res}   Andaman_and_Nicober   1452.642 {txt}{c |}
+     {c BLC}{hline 24}{c -}{hline 10}{c BRC}
+
+{com}. restore
+{txt}
+{com}. *states like Mizoram (highest)(Rs. 11786) Chandigarh (Rs. 1471); Delhi (Rs.1403), Andaman and Nicobar (Rs.1254) and Nagaland (Rs. 1162) are the five topmost states to have the highest per capita consumption expenditure 
+. 
+. 
+. *ii Load the household level data (level01)
+. 
+. *Calculate deciles
+. sum per_capita_expenditure, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 216.7143             .2
+{txt} 5%    {res} 296.1056            .25
+{txt}10%    {res}    344.4             17       {txt}Obs         {res}    124,680
+{txt}25%    {res}    449.2             20       {txt}Sum of Wgt. {res}    124,680
+
+{txt}50%    {res}      623                      {txt}Mean          {res} 1245.707
+                        {txt}Largest       Std. Dev.     {res} 141606.7
+{txt}75%    {res}   953.75         104123
+{txt}90%    {res}     1544         145798       {txt}Variance      {res} 2.01e+10
+{txt}95%    {res}     2059         318658       {txt}Skewness      {res} 353.0486
+{txt}99%    {res} 3685.333       5.00e+07       {txt}Kurtosis      {res} 124655.5
+{txt}
+{com}. xtile decile = per_capita_expenditure, n(10)
+{txt}
+{com}. 
+. *cut-offs 
+. summarize per_capita_expenditure if decile ==1, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}     91.2             .2
+{txt} 5%    {res}    186.5            .25
+{txt}10%    {res}   216.75             17       {txt}Obs         {res}     12,472
+{txt}25%    {res}    257.6             20       {txt}Sum of Wgt. {res}     12,472
+
+{txt}50%    {res} 296.1111                      {txt}Mean          {res} 283.5301
+                        {txt}Largest       Std. Dev.     {res}  51.7392
+{txt}75%    {res}      323          344.4
+{txt}90%    {res} 336.1667          344.4       {txt}Variance      {res} 2676.945
+{txt}95%    {res} 340.3333          344.4       {txt}Skewness      {res}-1.515542
+{txt}99%    {res} 343.6667          344.4       {txt}Kurtosis      {res}  6.21281
+{txt}
+{com}. summarize per_capita_expenditure if decile ==2, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 345.1818       344.4286
+{txt} 5%    {res} 348.3333       344.4286
+{txt}10%    {res} 352.3333       344.4286       {txt}Obs         {res}     12,475
+{txt}25%    {res}   363.75       344.4286       {txt}Sum of Wgt. {res}     12,475
+
+{txt}50%    {res}    382.5                      {txt}Mean          {res}   381.75
+                        {txt}Largest       Std. Dev.     {res} 20.80983
+{txt}75%    {res}    400.2       416.3333
+{txt}90%    {res}  409.625       416.3333       {txt}Variance      {res} 433.0489
+{txt}95%    {res}      413       416.3333       {txt}Skewness      {res}-.0837045
+{txt}99%    {res}   415.75       416.3333       {txt}Kurtosis      {res} 1.789295
+{txt}
+{com}. summarize per_capita_expenditure if decile ==3, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}      417       416.3636
+{txt} 5%    {res}    419.6        416.375
+{txt}10%    {res}    422.6        416.375       {txt}Obs         {res}     12,488
+{txt}25%    {res}   432.75        416.375       {txt}Sum of Wgt. {res}     12,488
+
+{txt}50%    {res}   449.25                      {txt}Mean          {res} 449.2809
+                        {txt}Largest       Std. Dev.     {res} 19.13727
+{txt}75%    {res}      466            482
+{txt}90%    {res}    475.6            482       {txt}Variance      {res} 366.2352
+{txt}95%    {res}      479            482       {txt}Skewness      {res}-.0089169
+{txt}99%    {res}    481.5            482       {txt}Kurtosis      {res} 1.778751
+{txt}
+{com}. summarize per_capita_expenditure if decile ==4, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 482.7692       482.1429
+{txt} 5%    {res}    485.4       482.1429
+{txt}10%    {res}   488.75       482.1429       {txt}Obs         {res}     12,442
+{txt}25%    {res}    498.2       482.1667       {txt}Sum of Wgt. {res}     12,442
+
+{txt}50%    {res} 514.1667                      {txt}Mean          {res} 514.0425
+                        {txt}Largest       Std. Dev.     {res} 18.40447
+{txt}75%    {res} 529.6667         546.75
+{txt}90%    {res}   539.75         546.75       {txt}Variance      {res} 338.7246
+{txt}95%    {res}   543.25         546.75       {txt}Skewness      {res} .0223964
+{txt}99%    {res}  546.125         546.75       {txt}Kurtosis      {res} 1.826408
+{txt}
+{com}. summarize per_capita_expenditure if decile ==5, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}    547.5          546.8
+{txt} 5%    {res}   550.25          546.8
+{txt}10%    {res} 553.5555          546.8       {txt}Obs         {res}     12,484
+{txt}25%    {res} 564.5635          546.8       {txt}Sum of Wgt. {res}     12,484
+
+{txt}50%    {res} 583.5714                      {txt}Mean          {res} 583.9283
+                        {txt}Largest       Std. Dev.     {res} 22.09189
+{txt}75%    {res}      603            623
+{txt}90%    {res} 614.8571            623       {txt}Variance      {res} 488.0515
+{txt}95%    {res}      619            623       {txt}Skewness      {res} .0432262
+{txt}99%    {res}   622.25            623       {txt}Kurtosis      {res} 1.788531
+{txt}
+{com}. summarize per_capita_expenditure if decile ==6, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}      624       623.0833
+{txt} 5%    {res}   627.25       623.1111
+{txt}10%    {res}    631.5        623.125       {txt}Obs         {res}     12,447
+{txt}25%    {res} 644.6667       623.1429       {txt}Sum of Wgt. {res}     12,447
+
+{txt}50%    {res}    667.2                      {txt}Mean          {res} 668.7022
+                        {txt}Largest       Std. Dev.     {res} 27.68749
+{txt}75%    {res}    692.5            719
+{txt}90%    {res}   708.25       719.1429       {txt}Variance      {res} 766.5969
+{txt}95%    {res}    713.5       719.1429       {txt}Skewness      {res} .1086871
+{txt}99%    {res}      718       719.1667       {txt}Kurtosis      {res}  1.80604
+{txt}
+{com}. summarize per_capita_expenditure if decile ==7, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}   720.25          719.2
+{txt} 5%    {res}      725          719.2
+{txt}10%    {res} 730.4286          719.2       {txt}Obs         {res}     12,477
+{txt}25%    {res}      748          719.2       {txt}Sum of Wgt. {res}     12,477
+
+{txt}50%    {res} 779.7273                      {txt}Mean          {res} 781.7292
+                        {txt}Largest       Std. Dev.     {res} 38.57068
+{txt}75%    {res}      814          854.5
+{txt}90%    {res}    837.2          854.5       {txt}Variance      {res} 1487.697
+{txt}95%    {res}    845.6          854.5       {txt}Skewness      {res} .1487546
+{txt}99%    {res}   852.75          854.5       {txt}Kurtosis      {res} 1.836384
+{txt}
+{com}. summarize per_capita_expenditure if decile ==8, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}   856.25          854.6
+{txt} 5%    {res}    863.8          854.6
+{txt}10%    {res}      872          854.6       {txt}Obs         {res}     12,460
+{txt}25%    {res}      901        854.625       {txt}Sum of Wgt. {res}     12,460
+
+{txt}50%    {res}    953.8                      {txt}Mean          {res}  957.441
+                        {txt}Largest       Std. Dev.     {res} 64.33635
+{txt}75%    {res}   1011.5        1078.75
+{txt}90%    {res} 1050.414        1078.75       {txt}Variance      {res} 4139.166
+{txt}95%    {res} 1063.804         1078.8       {txt}Skewness      {res} .1621397
+{txt}99%    {res} 1075.625         1078.8       {txt}Kurtosis      {res} 1.833519
+{txt}
+{com}. summarize per_capita_expenditure if decile ==9, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}     1082       1078.857
+{txt} 5%    {res} 1094.333           1079
+{txt}10%    {res}   1109.6           1079       {txt}Obs         {res}     12,472
+{txt}25%    {res}     1162           1079       {txt}Sum of Wgt. {res}     12,472
+
+{txt}50%    {res}   1262.5                      {txt}Mean          {res} 1278.775
+                        {txt}Largest       Std. Dev.     {res} 133.0623
+{txt}75%    {res}     1388           1544
+{txt}90%    {res} 1476.571           1544       {txt}Variance      {res} 17705.57
+{txt}95%    {res} 1510.333           1544       {txt}Skewness      {res} .2981306
+{txt}99%    {res}     1537           1544       {txt}Kurtosis      {res} 1.908315
+{txt}
+{com}. summarize per_capita_expenditure if decile ==10, detail
+
+                   {txt}per_capita_expenditure
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 1551.333         1544.2
+{txt} 5%    {res} 1581.667        1544.25
+{txt}10%    {res}   1619.5        1544.25       {txt}Obs         {res}     12,463
+{txt}25%    {res} 1756.333       1544.333       {txt}Sum of Wgt. {res}     12,463
+
+{txt}50%    {res} 2059.333                      {txt}Mean          {res} 6560.582
+                        {txt}Largest       Std. Dev.     {res} 447869.8
+{txt}75%    {res}     2693         104123
+{txt}90%    {res} 3685.333         145798       {txt}Variance      {res} 2.01e+11
+{txt}95%    {res}   4642.5         318658       {txt}Skewness      {res} 111.6127
+{txt}99%    {res} 8014.667       5.00e+07       {txt}Kurtosis      {res} 12459.25
+{txt}
+{com}. 
+. *merging level01 with level03 and level04.dta datasets
+. use "$data\level01.dta", clear
+{txt}
+{com}. merge 1:m common_id using "$data\level03.dta", nogen
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}               0
+{txt}{col 5}matched{col 30}{res}         602,833{txt}  
+{col 5}{hline 41}
+
+{com}. save "$data\merged_data3.dta", replace
+{txt}file C:\Users\Admin\Documents\NSS 61 (4)\NSS 61\data\merged_data3.dta saved
+
+{com}. merge 1:1 _n using "$data\level04.dta"
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}               0
+{txt}{col 5}matched{col 30}{res}         602,833{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. save "$data\merged_dataset.dta", replace 
+{txt}file C:\Users\Admin\Documents\NSS 61 (4)\NSS 61\data\merged_dataset.dta saved
+
+{com}. 
+. 
+. * iii Load the individual level data
+. use "$data\merged_dataset.dta", clear
+{txt}
+{com}. 
+. *Keep individuals aged 15-59
+. destring age, replace 
+{txt}age: all characters numeric; {res}replaced {txt}as {res}int
+{txt}
+{com}. *keep if age >= 15 & age <= 59
+. label define sex 1 Male 2 Female
+{txt}
+{com}. destring sex, replace
+{txt}sex: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}(1 missing value generated)
+{res}{txt}
+{com}. label values sex sex 
+{txt}
+{com}. //keep common_id age pri_activity_status sex
+. *Keep individuals aged 15-59
+. destring age, replace
+{txt}age already numeric; no {res}replace
+{txt}
+{com}. keep if age >= 15 & age <= 59
+{txt}(239,867 observations deleted)
+
+{com}. destring sex, replace
+{txt}sex already numeric; no {res}replace
+{txt}
+{com}. destring pri_activity_status, replace
+{txt}pri_activity_status: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}
+{com}. keep if pri_activity_status >= 11 & pri_activity_status <= 51
+{txt}(229,696 observations deleted)
+
+{com}. sort pri_activity_status
+{txt}
+{com}. bys pri_activity_status: gen tot_pop = _N
+{txt}
+{com}. 
+. *computing proportion of female and male employed by principle status (11-51)
+. egen tot_fem = total(sex) if sex == 2, by(pri_activity_status)
+{txt}(67,380 missing values generated)
+
+{com}. replace tot_fem = tot_fem/2
+{txt}(65,890 real changes made)
+
+{com}. bysort pri_activity_status: replace tot_fem = tot_fem[_n-1] if missing(tot_fem)
+{txt}(67376 real changes made)
+
+{com}. bysort pri_activity_status: replace tot_fem = tot_fem[_n+1] if missing(tot_fem)
+{txt}(3 real changes made)
+
+{com}. egen tot_male = total(sex) if sex == 1, by(pri_activity_status)
+{txt}(65,890 missing values generated)
+
+{com}. bysort pri_activity_status: replace tot_male = tot_male[_n-1] if missing(tot_male)
+{txt}(65877 real changes made)
+
+{com}. bysort pri_activity_status: replace tot_male = tot_male[_n+1] if missing(tot_male)
+{txt}(3 real changes made)
+
+{com}. gen female_prop = tot_fem/tot_pop
+{txt}(1 missing value generated)
+
+{com}. gen male_prop = tot_male/tot_pop
+{txt}(10 missing values generated)
+
+{com}. 
+. *testing if employment proportion is significantly different across males and females:
+. ttest female_prop == male_prop
+
+{txt}Paired t test
+{hline 9}{c TT}{hline 68}
+Variable{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+female~p {c |}{res}{col 12}133,259{col 22} .4944105{col 34} 8.90e-06{col 46}  .003249{col 58}  .494393{col 70} .4944279
+{txt}male_p~p {c |}{res}{col 12}133,259{col 22} .5055895{col 34} 8.90e-06{col 46}  .003249{col 58} .5055721{col 70}  .505607
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 12}133,259{col 22} -.011179{col 34} .0000178{col 46} .0064979{col 58}-.0112139{col 70}-.0111441
+{txt}{hline 9}{c BT}{hline 68}
+     mean(diff) = mean({res}female_prop{txt} - {res}male_prop{txt})                   t = {res}-6.3e+02
+{txt} Ho: mean(diff) = 0                              degrees of freedom = {res}  133258
+
+ {txt}Ha: mean(diff) < 0           Ha: mean(diff) != 0           Ha: mean(diff) > 0
+ Pr(T < t) = {res}0.0000         {txt}Pr(|T| > |t|) = {res}0.0000          {txt}Pr(T > t) = {res}1.0000
+{txt}
+{com}. *we find that we do not reject the null hypothesis, hence employment proportion is not significantly different across males and females, as the proportion is almost the same for both.
+.  
+.  
+.  *iv Load the household and individual level data (merged dataset)
+. * Keep females aged 15-59
+. keep if sex == 2 & age >= 15 & age <= 59
+{txt}(67,380 observations deleted)
+
+{com}. 
+. * Calculate employment rate by principal status for females
+. rename mpce_30_days mpce 
+{res}{txt}
+{com}. destring mpce, replace 
+{txt}mpce: all characters numeric; {res}replaced {txt}as {res}long
+{txt}
+{com}. destring hh_size, replace
+{txt}hh_size: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}
+{com}. * Calculate monthly per capita consumption expenditure
+. gen per_capita_expenditure = mpce / hh_size
+{txt}
+{com}. xtile decile = per_capita_expenditure, n(10)
+{txt}
+{com}. 
+. *Plotting the difference in employment rate for females aged 15-59, across expenditure dciles
+. egen emp_rate = mean(tot_fem), by(decile)
+{txt}
+{com}. graph bar emp_rate, over(decile) blabel(bar) title ("Employment Rate by Expenditure Decile for Females Aged 15-59")
+{res}{txt}
+{com}. graph export graph1.pdf, replace
+{txt}(file graph1.pdf written in PDF format)
+
+{com}. 
+. 
+. * v Load the individual level data
+. use "$data\merged_dataset.dta", clear
+{txt}
+{com}. tostring age, replace
+{txt}age already string; no {res}replace
+{txt}
+{com}. rename _merge _1merge
+{res}{txt}
+{com}. *merging level06 with merged dataset
+. merge 1:1 _n using "$data\level06.dta"
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}          79,673
+{txt}{col 9}from master{col 30}{res}               0{txt}  (_merge==1)
+{col 9}from using{col 30}{res}          79,673{txt}  (_merge==2)
+
+{col 5}matched{col 30}{res}         602,833{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. 
+. 
+. * Generating month ang year variables from July 2004 to June 2005
+. tostring date_of_survey, replace 
+{txt}date_of_survey already string; no {res}replace
+{txt}
+{com}. gen year = substr(date_of_survey, 5, .)
+{txt}(79,756 missing values generated)
+
+{com}. destring year, replace
+{txt}year: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}(79756 missing values generated)
+{res}{txt}
+{com}. replace year = 2004 if year==4
+{txt}variable {bf}year{sf} was {bf}{res}byte{sf}{txt} now {bf}{res}int{sf}
+{txt}(301,281 real changes made)
+
+{com}. replace year = 2005 if year==5
+{txt}(301,469 real changes made)
+
+{com}. gen month = substr( date_of_survey, 3, 2)
+{txt}(79,756 missing values generated)
+
+{com}. destring month, replace
+{txt}month: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}(79756 missing values generated)
+{res}{txt}
+{com}. gen year_mo = ym(year, month)
+{txt}(79,756 missing values generated)
+
+{com}. format year_mo %tm
+{txt}
+{com}. drop if year_mo >545
+{txt}(81,754 observations deleted)
+
+{com}. 
+. *generating daily wage rate variable 
+. destring age, replace
+{txt}age: all characters numeric; {res}replaced {txt}as {res}int
+{txt}
+{com}. destring daily_activity_status, replace
+{txt}daily_activity_status: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}
+{com}. label define daily_activity_status 11 worked_in_hh_enterprise_selfemployed_own_account_worker   12 employer     21 worked_as_helper_in_hh_enterprise_unpaid_family_worker       31 worked_as_regular_salaried_wage_employee     41 worked_as_casual_wage_labour_in_public_works         51 worked_as_casual_wage_labour_other_types_of_work     61 had_work_in_hh_enterprise_but_did_not_work_due_to_sickness   62 had_work_in_hh_enterprise_but_did_not_work_due_to_other_reasons      71 had_regular_salaried_wage_employment_but_did_not_work_due_to_sickness        72 had_regular_salaried_wage_employment_but_did_not_work_due_to_other_reasons   81 sought_work  82 did_not_seek_but_was_available_for_work      91 attended_educational_institution     92 attended_domestic_duties_only        93 attended_domestic_duties_and_was_also_engaged_in_free_collection_of_goods_sewing_tailoring_weaving_for_household_use         94 rentiers_pensioners_remittance_recipients    95 not_able_to_work_due_to_disability   97 others_including_begging_prostitution        98 did_not_work__due_to_temporary_sickness_for_casual_workers_only 
+{txt}
+{com}. destring daily_activity_status, replace
+{txt}daily_activity_status already numeric; no {res}replace
+{txt}
+{com}. label values daily_activity_status daily_activity_status
+{txt}
+{com}. destring earning_cash_seven_days_work, replace
+{txt}earning_cash_seven_days_work: all characters numeric; {res}replaced {txt}as {res}long
+{txt}(523691 missing values generated)
+{res}{txt}
+{com}. 
+. * Keep individuals salaried employment
+. keep if daily_activity_status == 31
+{txt}(560,149 observations deleted)
+
+{com}. gen daily_wage_rate = earning_cash_seven_days_work/7 if daily_activity_status == 31
+{txt}(750 missing values generated)
+
+{com}. 
+. *saving merged dataset with level06 containing year, month and daily wage variables 
+. save "$data\merged_data_daily_wage.dta", replace 
+{txt}file C:\Users\Admin\Documents\NSS 61 (4)\NSS 61\data\merged_data_daily_wage.dta saved
+
+{com}. 
+.  
+. *calculating average daily wage rate for individuals with salaried employment and plotting it month wise from July 2004 to June 2005
+. collapse (mean) avg_daily_wage = daily_wage_rate, by (year_mo)
+{txt}
+{com}. tsset year_mo
+{res}{txt}{col 9}time variable:  {res}{col 25}year_mo, 2004m7 to 2005m6
+{txt}{col 17}delta:  {res}1 month
+{txt}
+{com}. label variable avg_daily_wage "Average Daily Wage"
+{txt}
+{com}. label variable year_mo "Year Month"
+{txt}
+{com}. twoway (tsline avg_daily_wage)
+{res}{txt}
+{com}. graph export graph2.pdf, replace
+{txt}(file graph2.pdf written in PDF format)
+
+{com}. 
+. 
+. * vi Load the data saved with combined level 01, 03, 04 and 06 datasets containing year, month and daily wage variables 
+. use "$data\merged_data_daily_wage.dta", replace 
+{txt}
+{com}. 
+. *Keep individuals aged 15-59
+. keep if age >= 15 & age <= 59
+{txt}(15,673 observations deleted)
+
+{com}. 
+. *Generate log of daily wage rate
+. gen log_daily_wage = log(daily_wage)
+{txt}(498 missing values generated)
+
+{com}. 
+. destring district, replace 
+{txt}district: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}
+{com}. destring education, replace
+{txt}education: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}(9 missing values generated)
+{res}{txt}
+{com}. destring  pri_activity_status, replace
+{txt}pri_activity_status: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}
+{com}. label define sex 1 Male 2 Female
+{txt}
+{com}. destring sex, replace
+{txt}sex: all characters numeric; {res}replaced {txt}as {res}byte
+{txt}
+{com}. label values sex sex 
+{txt}
+{com}. 
+. *Estimate the difference in log of daily wage rate between men and women, after controlling for age, education, district, occupation(pri_activity_status), month level (year_mo)
+. ssc install hdfe
+{txt}checking {hilite:hdfe} consistency and verifying not already installed...
+all files already exist and are up to date.
+
+{com}. regress log_daily_wage sex i.district i.pri_activity_status i.month age education,cluster(district)
+
+{txt}Linear regression                               Number of obs     = {res}    24,423
+                                                {txt}{help j_robustsingular:F(26, 71) }        =  {res}        .
+                                                {txt}Prob > F          = {res}         .
+                                                {txt}R-squared         = {res}    0.0083
+                                                {txt}Root MSE          =    {res} .98464
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:72} clusters in district)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}     log_daily_wage{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 16}sex {c |}{col 21}{res}{space 2}-.0109276{col 33}{space 2}  .012555{col 44}{space 1}   -0.87{col 53}{space 3}0.387{col 61}{space 4}-.0359616{col 74}{space 3} .0141064
+{txt}{space 19} {c |}
+{space 11}district {c |}
+{space 17}2  {c |}{col 21}{res}{space 2} .0019218{col 33}{space 2} .0016516{col 44}{space 1}    1.16{col 53}{space 3}0.248{col 61}{space 4}-.0013713{col 74}{space 3} .0052149
+{txt}{space 17}3  {c |}{col 21}{res}{space 2} .0295512{col 33}{space 2} .0016499{col 44}{space 1}   17.91{col 53}{space 3}0.000{col 61}{space 4} .0262614{col 74}{space 3} .0328411
+{txt}{space 17}4  {c |}{col 21}{res}{space 2} .0387641{col 33}{space 2} .0024129{col 44}{space 1}   16.07{col 53}{space 3}0.000{col 61}{space 4}  .033953{col 74}{space 3} .0435753
+{txt}{space 17}5  {c |}{col 21}{res}{space 2}-.0464017{col 33}{space 2} .0021519{col 44}{space 1}  -21.56{col 53}{space 3}0.000{col 61}{space 4}-.0506925{col 74}{space 3}-.0421108
+{txt}{space 17}6  {c |}{col 21}{res}{space 2}-.0116973{col 33}{space 2} .0017397{col 44}{space 1}   -6.72{col 53}{space 3}0.000{col 61}{space 4}-.0151662{col 74}{space 3}-.0082283
+{txt}{space 17}7  {c |}{col 21}{res}{space 2}-.0713714{col 33}{space 2} .0022154{col 44}{space 1}  -32.22{col 53}{space 3}0.000{col 61}{space 4}-.0757888{col 74}{space 3} -.066954
+{txt}{space 17}8  {c |}{col 21}{res}{space 2}-.0129049{col 33}{space 2} .0023139{col 44}{space 1}   -5.58{col 53}{space 3}0.000{col 61}{space 4}-.0175187{col 74}{space 3} -.008291
+{txt}{space 17}9  {c |}{col 21}{res}{space 2}-.0541545{col 33}{space 2} .0018088{col 44}{space 1}  -29.94{col 53}{space 3}0.000{col 61}{space 4}-.0577612{col 74}{space 3}-.0505479
+{txt}{space 16}10  {c |}{col 21}{res}{space 2}-.1036611{col 33}{space 2} .0015406{col 44}{space 1}  -67.29{col 53}{space 3}0.000{col 61}{space 4} -.106733{col 74}{space 3}-.1005893
+{txt}{space 16}11  {c |}{col 21}{res}{space 2}-.0638297{col 33}{space 2} .0011364{col 44}{space 1}  -56.17{col 53}{space 3}0.000{col 61}{space 4}-.0660955{col 74}{space 3}-.0615638
+{txt}{space 16}12  {c |}{col 21}{res}{space 2}-.1436939{col 33}{space 2} .0028527{col 44}{space 1}  -50.37{col 53}{space 3}0.000{col 61}{space 4} -.149382{col 74}{space 3}-.1380057
+{txt}{space 16}13  {c |}{col 21}{res}{space 2}-.0942495{col 33}{space 2} .0015972{col 44}{space 1}  -59.01{col 53}{space 3}0.000{col 61}{space 4}-.0974343{col 74}{space 3}-.0910648
+{txt}{space 16}14  {c |}{col 21}{res}{space 2}-.0836046{col 33}{space 2} .0023758{col 44}{space 1}  -35.19{col 53}{space 3}0.000{col 61}{space 4}-.0883418{col 74}{space 3}-.0788674
+{txt}{space 16}15  {c |}{col 21}{res}{space 2}-.1377908{col 33}{space 2} .0022184{col 44}{space 1}  -62.11{col 53}{space 3}0.000{col 61}{space 4}-.1422142{col 74}{space 3}-.1333675
+{txt}{space 16}16  {c |}{col 21}{res}{space 2}-.1063782{col 33}{space 2} .0024361{col 44}{space 1}  -43.67{col 53}{space 3}0.000{col 61}{space 4}-.1112356{col 74}{space 3}-.1015208
+{txt}{space 16}17  {c |}{col 21}{res}{space 2}-.1312622{col 33}{space 2} .0027628{col 44}{space 1}  -47.51{col 53}{space 3}0.000{col 61}{space 4} -.136771{col 74}{space 3}-.1257533
+{txt}{space 16}18  {c |}{col 21}{res}{space 2} .0159091{col 33}{space 2} .0018824{col 44}{space 1}    8.45{col 53}{space 3}0.000{col 61}{space 4} .0121558{col 74}{space 3} .0196625
+{txt}{space 16}19  {c |}{col 21}{res}{space 2}-.0359747{col 33}{space 2}  .003023{col 44}{space 1}  -11.90{col 53}{space 3}0.000{col 61}{space 4}-.0420023{col 74}{space 3} -.029947
+{txt}{space 16}20  {c |}{col 21}{res}{space 2}-.1396735{col 33}{space 2} .0029539{col 44}{space 1}  -47.28{col 53}{space 3}0.000{col 61}{space 4}-.1455634{col 74}{space 3}-.1337835
+{txt}{space 16}21  {c |}{col 21}{res}{space 2}-.1650356{col 33}{space 2} .0032887{col 44}{space 1}  -50.18{col 53}{space 3}0.000{col 61}{space 4} -.171593{col 74}{space 3}-.1584782
+{txt}{space 16}22  {c |}{col 21}{res}{space 2}-.1556975{col 33}{space 2} .0033462{col 44}{space 1}  -46.53{col 53}{space 3}0.000{col 61}{space 4}-.1623697{col 74}{space 3}-.1490253
+{txt}{space 16}23  {c |}{col 21}{res}{space 2}-.1162278{col 33}{space 2} .0042797{col 44}{space 1}  -27.16{col 53}{space 3}0.000{col 61}{space 4}-.1247613{col 74}{space 3}-.1076943
+{txt}{space 16}24  {c |}{col 21}{res}{space 2}-.0769096{col 33}{space 2} .0029192{col 44}{space 1}  -26.35{col 53}{space 3}0.000{col 61}{space 4}-.0827304{col 74}{space 3}-.0710889
+{txt}{space 16}25  {c |}{col 21}{res}{space 2} -.210977{col 33}{space 2} .0037309{col 44}{space 1}  -56.55{col 53}{space 3}0.000{col 61}{space 4}-.2184163{col 74}{space 3}-.2035378
+{txt}{space 16}26  {c |}{col 21}{res}{space 2}-.0523616{col 33}{space 2} .0030707{col 44}{space 1}  -17.05{col 53}{space 3}0.000{col 61}{space 4}-.0584844{col 74}{space 3}-.0462388
+{txt}{space 16}27  {c |}{col 21}{res}{space 2}-.1883799{col 33}{space 2} .0032971{col 44}{space 1}  -57.14{col 53}{space 3}0.000{col 61}{space 4}-.1949541{col 74}{space 3}-.1818057
+{txt}{space 16}28  {c |}{col 21}{res}{space 2}-.1464232{col 33}{space 2} .0045836{col 44}{space 1}  -31.95{col 53}{space 3}0.000{col 61}{space 4}-.1555625{col 74}{space 3}-.1372838
+{txt}{space 16}29  {c |}{col 21}{res}{space 2}-.0707756{col 33}{space 2} .0032071{col 44}{space 1}  -22.07{col 53}{space 3}0.000{col 61}{space 4}-.0771705{col 74}{space 3}-.0643808
+{txt}{space 16}30  {c |}{col 21}{res}{space 2}-.1412644{col 33}{space 2} .0040366{col 44}{space 1}  -35.00{col 53}{space 3}0.000{col 61}{space 4}-.1493132{col 74}{space 3}-.1332157
+{txt}{space 16}31  {c |}{col 21}{res}{space 2}-.2196075{col 33}{space 2}   .00567{col 44}{space 1}  -38.73{col 53}{space 3}0.000{col 61}{space 4}-.2309131{col 74}{space 3} -.208302
+{txt}{space 16}32  {c |}{col 21}{res}{space 2}-.0168357{col 33}{space 2} .0038042{col 44}{space 1}   -4.43{col 53}{space 3}0.000{col 61}{space 4} -.024421{col 74}{space 3}-.0092504
+{txt}{space 16}33  {c |}{col 21}{res}{space 2}-.0536626{col 33}{space 2} .0077359{col 44}{space 1}   -6.94{col 53}{space 3}0.000{col 61}{space 4}-.0690876{col 74}{space 3}-.0382376
+{txt}{space 16}34  {c |}{col 21}{res}{space 2} .0414151{col 33}{space 2} .0048248{col 44}{space 1}    8.58{col 53}{space 3}0.000{col 61}{space 4} .0317946{col 74}{space 3} .0510355
+{txt}{space 16}35  {c |}{col 21}{res}{space 2}-.0784069{col 33}{space 2} .0048751{col 44}{space 1}  -16.08{col 53}{space 3}0.000{col 61}{space 4}-.0881275{col 74}{space 3}-.0686862
+{txt}{space 16}36  {c |}{col 21}{res}{space 2} .0303082{col 33}{space 2} .0045824{col 44}{space 1}    6.61{col 53}{space 3}0.000{col 61}{space 4} .0211712{col 74}{space 3} .0394453
+{txt}{space 16}37  {c |}{col 21}{res}{space 2}-.3381944{col 33}{space 2} .0049945{col 44}{space 1}  -67.71{col 53}{space 3}0.000{col 61}{space 4}-.3481531{col 74}{space 3}-.3282357
+{txt}{space 16}38  {c |}{col 21}{res}{space 2}-.2361854{col 33}{space 2} .0107954{col 44}{space 1}  -21.88{col 53}{space 3}0.000{col 61}{space 4}-.2577107{col 74}{space 3}-.2146601
+{txt}{space 16}39  {c |}{col 21}{res}{space 2}-.1494636{col 33}{space 2} .0061195{col 44}{space 1}  -24.42{col 53}{space 3}0.000{col 61}{space 4}-.1616654{col 74}{space 3}-.1372617
+{txt}{space 16}40  {c |}{col 21}{res}{space 2} -.442387{col 33}{space 2} .0081662{col 44}{space 1}  -54.17{col 53}{space 3}0.000{col 61}{space 4}  -.45867{col 74}{space 3}-.4261041
+{txt}{space 16}41  {c |}{col 21}{res}{space 2}-.0744852{col 33}{space 2} .0074846{col 44}{space 1}   -9.95{col 53}{space 3}0.000{col 61}{space 4}-.0894091{col 74}{space 3}-.0595613
+{txt}{space 16}42  {c |}{col 21}{res}{space 2} .2244837{col 33}{space 2} .0090721{col 44}{space 1}   24.74{col 53}{space 3}0.000{col 61}{space 4} .2063945{col 74}{space 3}  .242573
+{txt}{space 16}43  {c |}{col 21}{res}{space 2}-.0820501{col 33}{space 2} .0062971{col 44}{space 1}  -13.03{col 53}{space 3}0.000{col 61}{space 4}-.0946061{col 74}{space 3}-.0694941
+{txt}{space 16}44  {c |}{col 21}{res}{space 2} .0634082{col 33}{space 2} .0067846{col 44}{space 1}    9.35{col 53}{space 3}0.000{col 61}{space 4} .0498801{col 74}{space 3} .0769362
+{txt}{space 16}45  {c |}{col 21}{res}{space 2}-.0601392{col 33}{space 2} .0031853{col 44}{space 1}  -18.88{col 53}{space 3}0.000{col 61}{space 4}-.0664905{col 74}{space 3}-.0537879
+{txt}{space 16}46  {c |}{col 21}{res}{space 2} .1544353{col 33}{space 2} .0072502{col 44}{space 1}   21.30{col 53}{space 3}0.000{col 61}{space 4} .1399788{col 74}{space 3} .1688918
+{txt}{space 16}47  {c |}{col 21}{res}{space 2}-.3604262{col 33}{space 2} .0098799{col 44}{space 1}  -36.48{col 53}{space 3}0.000{col 61}{space 4}-.3801261{col 74}{space 3}-.3407263
+{txt}{space 16}48  {c |}{col 21}{res}{space 2}-.0168586{col 33}{space 2} .0061707{col 44}{space 1}   -2.73{col 53}{space 3}0.008{col 61}{space 4}-.0291626{col 74}{space 3}-.0045546
+{txt}{space 16}49  {c |}{col 21}{res}{space 2} .2473011{col 33}{space 2} .0080409{col 44}{space 1}   30.76{col 53}{space 3}0.000{col 61}{space 4} .2312681{col 74}{space 3} .2633342
+{txt}{space 16}50  {c |}{col 21}{res}{space 2}-.1597997{col 33}{space 2} .0087739{col 44}{space 1}  -18.21{col 53}{space 3}0.000{col 61}{space 4}-.1772943{col 74}{space 3} -.142305
+{txt}{space 16}51  {c |}{col 21}{res}{space 2}-.1014821{col 33}{space 2} .0095779{col 44}{space 1}  -10.60{col 53}{space 3}0.000{col 61}{space 4}  -.12058{col 74}{space 3}-.0823843
+{txt}{space 16}52  {c |}{col 21}{res}{space 2}  .342735{col 33}{space 2} .0114358{col 44}{space 1}   29.97{col 53}{space 3}0.000{col 61}{space 4} .3199327{col 74}{space 3} .3655374
+{txt}{space 16}53  {c |}{col 21}{res}{space 2} .1254033{col 33}{space 2}  .009781{col 44}{space 1}   12.82{col 53}{space 3}0.000{col 61}{space 4} .1059006{col 74}{space 3} .1449061
+{txt}{space 16}54  {c |}{col 21}{res}{space 2} .0196326{col 33}{space 2} .0051146{col 44}{space 1}    3.84{col 53}{space 3}0.000{col 61}{space 4} .0094345{col 74}{space 3} .0298308
+{txt}{space 16}55  {c |}{col 21}{res}{space 2}-.0038867{col 33}{space 2} .0076559{col 44}{space 1}   -0.51{col 53}{space 3}0.613{col 61}{space 4}-.0191521{col 74}{space 3} .0113788
+{txt}{space 16}56  {c |}{col 21}{res}{space 2}-.0389789{col 33}{space 2} .0105479{col 44}{space 1}   -3.70{col 53}{space 3}0.000{col 61}{space 4}-.0600108{col 74}{space 3}-.0179471
+{txt}{space 16}57  {c |}{col 21}{res}{space 2}-.0434632{col 33}{space 2} .0059759{col 44}{space 1}   -7.27{col 53}{space 3}0.000{col 61}{space 4}-.0553788{col 74}{space 3}-.0315475
+{txt}{space 16}58  {c |}{col 21}{res}{space 2} .0731405{col 33}{space 2} .0102161{col 44}{space 1}    7.16{col 53}{space 3}0.000{col 61}{space 4} .0527703{col 74}{space 3} .0935107
+{txt}{space 16}59  {c |}{col 21}{res}{space 2}-.1839565{col 33}{space 2} .0076084{col 44}{space 1}  -24.18{col 53}{space 3}0.000{col 61}{space 4}-.1991272{col 74}{space 3}-.1687859
+{txt}{space 16}60  {c |}{col 21}{res}{space 2}-.3718652{col 33}{space 2} .0077164{col 44}{space 1}  -48.19{col 53}{space 3}0.000{col 61}{space 4}-.3872512{col 74}{space 3}-.3564792
+{txt}{space 16}61  {c |}{col 21}{res}{space 2} .0864458{col 33}{space 2} .0066968{col 44}{space 1}   12.91{col 53}{space 3}0.000{col 61}{space 4} .0730928{col 74}{space 3} .0997988
+{txt}{space 16}62  {c |}{col 21}{res}{space 2} .2473462{col 33}{space 2} .0116241{col 44}{space 1}   21.28{col 53}{space 3}0.000{col 61}{space 4} .2241684{col 74}{space 3} .2705241
+{txt}{space 16}63  {c |}{col 21}{res}{space 2}-.3424354{col 33}{space 2}  .007031{col 44}{space 1}  -48.70{col 53}{space 3}0.000{col 61}{space 4}-.3564547{col 74}{space 3} -.328416
+{txt}{space 16}64  {c |}{col 21}{res}{space 2}-.0053888{col 33}{space 2} .0063184{col 44}{space 1}   -0.85{col 53}{space 3}0.397{col 61}{space 4}-.0179873{col 74}{space 3} .0072096
+{txt}{space 16}65  {c |}{col 21}{res}{space 2}-.3096662{col 33}{space 2} .0133373{col 44}{space 1}  -23.22{col 53}{space 3}0.000{col 61}{space 4}  -.33626{col 74}{space 3}-.2830724
+{txt}{space 16}66  {c |}{col 21}{res}{space 2}-.0642418{col 33}{space 2}  .010054{col 44}{space 1}   -6.39{col 53}{space 3}0.000{col 61}{space 4}-.0842888{col 74}{space 3}-.0441947
+{txt}{space 16}67  {c |}{col 21}{res}{space 2}-.1330263{col 33}{space 2} .0063919{col 44}{space 1}  -20.81{col 53}{space 3}0.000{col 61}{space 4}-.1457713{col 74}{space 3}-.1202812
+{txt}{space 16}68  {c |}{col 21}{res}{space 2}-.3357662{col 33}{space 2} .0083582{col 44}{space 1}  -40.17{col 53}{space 3}0.000{col 61}{space 4} -.352432{col 74}{space 3}-.3191005
+{txt}{space 16}69  {c |}{col 21}{res}{space 2} .1217183{col 33}{space 2} .0080224{col 44}{space 1}   15.17{col 53}{space 3}0.000{col 61}{space 4}  .105722{col 74}{space 3} .1377145
+{txt}{space 16}70  {c |}{col 21}{res}{space 2}-.1026602{col 33}{space 2} .0105881{col 44}{space 1}   -9.70{col 53}{space 3}0.000{col 61}{space 4}-.1237723{col 74}{space 3}-.0815482
+{txt}{space 16}98  {c |}{col 21}{res}{space 2} .3177384{col 33}{space 2} .0139606{col 44}{space 1}   22.76{col 53}{space 3}0.000{col 61}{space 4} .2899018{col 74}{space 3}  .345575
+{txt}{space 16}99  {c |}{col 21}{res}{space 2}-.2185133{col 33}{space 2} .0074761{col 44}{space 1}  -29.23{col 53}{space 3}0.000{col 61}{space 4}-.2334202{col 74}{space 3}-.2036065
+{txt}{space 19} {c |}
+pri_activity_status {c |}
+{space 16}12  {c |}{col 21}{res}{space 2} .0877233{col 33}{space 2} .0689849{col 44}{space 1}    1.27{col 53}{space 3}0.208{col 61}{space 4}-.0498286{col 74}{space 3} .2252753
+{txt}{space 16}21  {c |}{col 21}{res}{space 2} .0261655{col 33}{space 2} .0291055{col 44}{space 1}    0.90{col 53}{space 3}0.372{col 61}{space 4}-.0318693{col 74}{space 3} .0842003
+{txt}{space 16}31  {c |}{col 21}{res}{space 2} .0009717{col 33}{space 2} .0218426{col 44}{space 1}    0.04{col 53}{space 3}0.965{col 61}{space 4}-.0425811{col 74}{space 3} .0445245
+{txt}{space 16}41  {c |}{col 21}{res}{space 2}-.2491125{col 33}{space 2} .2138279{col 44}{space 1}   -1.17{col 53}{space 3}0.248{col 61}{space 4}-.6754733{col 74}{space 3} .1772483
+{txt}{space 16}51  {c |}{col 21}{res}{space 2} .0121417{col 33}{space 2}  .031937{col 44}{space 1}    0.38{col 53}{space 3}0.705{col 61}{space 4}-.0515389{col 74}{space 3} .0758223
+{txt}{space 16}81  {c |}{col 21}{res}{space 2} .0231969{col 33}{space 2} .0533696{col 44}{space 1}    0.43{col 53}{space 3}0.665{col 61}{space 4}-.0832192{col 74}{space 3} .1296129
+{txt}{space 16}91  {c |}{col 21}{res}{space 2}  .004582{col 33}{space 2} .0229863{col 44}{space 1}    0.20{col 53}{space 3}0.843{col 61}{space 4}-.0412513{col 74}{space 3} .0504154
+{txt}{space 16}92  {c |}{col 21}{res}{space 2}-.0134121{col 33}{space 2} .0228729{col 44}{space 1}   -0.59{col 53}{space 3}0.559{col 61}{space 4}-.0590193{col 74}{space 3} .0321951
+{txt}{space 16}93  {c |}{col 21}{res}{space 2} .0353919{col 33}{space 2}  .029021{col 44}{space 1}    1.22{col 53}{space 3}0.227{col 61}{space 4}-.0224742{col 74}{space 3} .0932581
+{txt}{space 16}94  {c |}{col 21}{res}{space 2} .0069652{col 33}{space 2} .0530972{col 44}{space 1}    0.13{col 53}{space 3}0.896{col 61}{space 4}-.0989077{col 74}{space 3}  .112838
+{txt}{space 16}95  {c |}{col 21}{res}{space 2}  .062638{col 33}{space 2} .0714363{col 44}{space 1}    0.88{col 53}{space 3}0.384{col 61}{space 4} -.079802{col 74}{space 3}  .205078
+{txt}{space 16}97  {c |}{col 21}{res}{space 2} .0531839{col 33}{space 2} .0349472{col 44}{space 1}    1.52{col 53}{space 3}0.132{col 61}{space 4}-.0164988{col 74}{space 3} .1228666
+{txt}{space 16}99  {c |}{col 21}{res}{space 2} .0119251{col 33}{space 2} .0268619{col 44}{space 1}    0.44{col 53}{space 3}0.658{col 61}{space 4}-.0416359{col 74}{space 3} .0654861
+{txt}{space 19} {c |}
+{space 14}month {c |}
+{space 17}2  {c |}{col 21}{res}{space 2} -.098705{col 33}{space 2} .0377857{col 44}{space 1}   -2.61{col 53}{space 3}0.011{col 61}{space 4}-.1740475{col 74}{space 3}-.0233625
+{txt}{space 17}3  {c |}{col 21}{res}{space 2} .0066293{col 33}{space 2} .0301014{col 44}{space 1}    0.22{col 53}{space 3}0.826{col 61}{space 4}-.0533911{col 74}{space 3} .0666498
+{txt}{space 17}4  {c |}{col 21}{res}{space 2} .0193168{col 33}{space 2}  .029554{col 44}{space 1}    0.65{col 53}{space 3}0.515{col 61}{space 4}-.0396123{col 74}{space 3} .0782458
+{txt}{space 17}5  {c |}{col 21}{res}{space 2} .0212024{col 33}{space 2} .0379817{col 44}{space 1}    0.56{col 53}{space 3}0.578{col 61}{space 4} -.054531{col 74}{space 3} .0969358
+{txt}{space 17}6  {c |}{col 21}{res}{space 2} .0090219{col 33}{space 2} .0403611{col 44}{space 1}    0.22{col 53}{space 3}0.824{col 61}{space 4}-.0714558{col 74}{space 3} .0894995
+{txt}{space 17}7  {c |}{col 21}{res}{space 2} .0119414{col 33}{space 2} .0511129{col 44}{space 1}    0.23{col 53}{space 3}0.816{col 61}{space 4}-.0899747{col 74}{space 3} .1138576
+{txt}{space 17}8  {c |}{col 21}{res}{space 2}-.0765267{col 33}{space 2}  .039757{col 44}{space 1}   -1.92{col 53}{space 3}0.058{col 61}{space 4}-.1557999{col 74}{space 3} .0027465
+{txt}{space 17}9  {c |}{col 21}{res}{space 2}-.0471501{col 33}{space 2}  .036326{col 44}{space 1}   -1.30{col 53}{space 3}0.198{col 61}{space 4}-.1195822{col 74}{space 3} .0252819
+{txt}{space 16}10  {c |}{col 21}{res}{space 2}-.0270718{col 33}{space 2} .0395326{col 44}{space 1}   -0.68{col 53}{space 3}0.496{col 61}{space 4}-.1058975{col 74}{space 3} .0517538
+{txt}{space 16}11  {c |}{col 21}{res}{space 2}-.0116557{col 33}{space 2} .0427348{col 44}{space 1}   -0.27{col 53}{space 3}0.786{col 61}{space 4}-.0968666{col 74}{space 3} .0735551
+{txt}{space 16}12  {c |}{col 21}{res}{space 2}-.0214129{col 33}{space 2} .0374887{col 44}{space 1}   -0.57{col 53}{space 3}0.570{col 61}{space 4}-.0961633{col 74}{space 3} .0533374
+{txt}{space 19} {c |}
+{space 16}age {c |}{col 21}{res}{space 2} 8.91e-06{col 33}{space 2} .0006223{col 44}{space 1}    0.01{col 53}{space 3}0.989{col 61}{space 4}-.0012319{col 74}{space 3} .0012497
+{txt}{space 10}education {c |}{col 21}{res}{space 2}-.0055123{col 33}{space 2} .0021049{col 44}{space 1}   -2.62{col 53}{space 3}0.011{col 61}{space 4}-.0097093{col 74}{space 3}-.0013153
+{txt}{space 14}_cons {c |}{col 21}{res}{space 2} 4.904846{col 33}{space 2} .0424539{col 44}{space 1}  115.53{col 53}{space 3}0.000{col 61}{space 4} 4.820195{col 74}{space 3} 4.989496
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}.  
+. *performimg regression to absorb the fixed effects of controls 
+. 
+. *importing regression results in a tex file
+. eststo clear
+{txt}
+{com}. eststo est1: reghdfe log_daily_wage sex age education, absorb(i.district i.pri_activity_status i.year_mo) 
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 5 iterations)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    24,423
+{txt}Absorbing 3 HDFE groups{col 51}F({res}   3{txt},{res}  24324{txt}){col 67}= {res}      3.04
+{txt}{col 51}Prob > F{col 67}= {res}    0.0278
+{txt}{col 51}R-squared{col 67}= {res}    0.0083
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0043
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0004
+{txt}{col 51}Root MSE{col 67}= {res}    0.9846
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}log_daily_~e{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}sex {c |}{col 14}{res}{space 2}-.0109276{col 26}{space 2} .0129338{col 37}{space 1}   -0.84{col 46}{space 3}0.398{col 54}{space 4}-.0362787{col 67}{space 3} .0144235
+{txt}{space 9}age {c |}{col 14}{res}{space 2} 8.91e-06{col 26}{space 2} .0005364{col 37}{space 1}    0.02{col 46}{space 3}0.987{col 54}{space 4}-.0010424{col 67}{space 3} .0010602
+{txt}{space 3}education {c |}{col 14}{res}{space 2}-.0055123{col 26}{space 2} .0018629{col 37}{space 1}   -2.96{col 46}{space 3}0.003{col 54}{space 4}-.0091637{col 67}{space 3}-.0018609
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 4.831068{col 26}{space 2}  .032261{col 37}{space 1}  149.75{col 46}{space 3}0.000{col 54}{space 4} 4.767834{col 67}{space 3} 4.894301
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{res}{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}            district{col 22}{c |}{space 1}       72{col 35}{space 1}        0{col 47}{result}{space 1}       72{col 61}{text} {col 62}{c |}
+{res}{col 1}{text} pri_activity_status{col 22}{c |}{space 1}       14{col 35}{space 1}        1{col 47}{result}{space 1}       13{col 61}{text} {col 62}{c |}
+{res}{col 1}{text}             year_mo{col 22}{c |}{space 1}       12{col 35}{space 1}        1{col 47}{result}{space 1}       11{col 61}{text}?{col 62}{c |}
+{res}{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+{res}{txt}
+{com}. 
+. // Add fixed effects information
+. estadd local Time_FE "yes"
+
+{txt}added macro:
+            e(Time_FE) : "{res:yes}"
+
+{com}. estadd local District_FE "yes"
+
+{txt}added macro:
+        e(District_FE) : "{res:yes}"
+
+{com}. estadd local Occupation_FE "yes"
+
+{txt}added macro:
+      e(Occupation_FE) : "{res:yes}"
+
+{com}. 
+. // Generate LaTeX code for the table, hiding specific control variables
+. 
+. esttab est1 using reg1_final.tex, ///
+>     cells(b(fmt(3) star) se(fmt(3) par)) ///
+>     label nodepvars nomtitle nonumber ///
+>     noobs collabels("Dependent Variable: Log Daily Wage" "") ///
+>     varlabels( "Sex" "Age" "Educational Level") ///
+>     stats(r2 N) ///
+>     starlevels(* 0.10 * 0.05 ** 0.01) ///
+>         addnote("**p$<$0.01, * p$<$0.05, * p$<$0.1") ///
+>     title("Regression Results showing Difference in Log Daily Wage across Gender") ///
+>     replace
+{res}{txt}(output written to {browse  `"reg1_final.tex"'})
+
+{com}.         
+. 
+. *vii using the same dataset
+. 
+. *Keep salaried individuals aged 15-59
+. keep if daily_activity_status == 31 & age >= 15 & age <= 59
+{txt}(0 observations deleted)
+
+{com}. *Generate indicator variables for post-policy period (January 2005 onwards), female (1 if female and 0 if male), post_female an interaction between post_policy and female which is 1 if both post_policy and female is 1
+. *gen post_policy = (month >= 1 & year >= 2005)
+. gen post_policy = (year > 2005) | (year==2005 & month >=1)
+{txt}
+{com}. gen female = (sex==2)
+{txt}
+{com}. gen post_female = post_policy*female
+{txt}
+{com}. 
+. *DID equation and results provided in latex pdf file 
+. 
+. *Estimate the effect of the policy change on the gender wage gap
+. *performimg regression to absorb the fixed effects of controls 
+. reghdfe log_daily_wage post_policy female post_female age education, absorb(i.district i.pri_activity_status i.year_mo) 
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 5 iterations)
+{res}{txt}note: {res}post_policy{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    24,423
+{txt}Absorbing 3 HDFE groups{col 51}F({res}   4{txt},{res}  24323{txt}){col 67}= {res}      2.51
+{txt}{col 51}Prob > F{col 67}= {res}    0.0396
+{txt}{col 51}R-squared{col 67}= {res}    0.0084
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0043
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0004
+{txt}{col 51}Root MSE{col 67}= {res}    0.9846
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}log_daily_~e{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 1}post_policy {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 6}female {c |}{col 14}{res}{space 2}-.0231564{col 26}{space 2} .0180824{col 37}{space 1}   -1.28{col 46}{space 3}0.200{col 54}{space 4}-.0585991{col 67}{space 3} .0122863
+{txt}{space 1}post_female {c |}{col 14}{res}{space 2} .0244452{col 26}{space 2} .0252609{col 37}{space 1}    0.97{col 46}{space 3}0.333{col 54}{space 4}-.0250678{col 67}{space 3} .0739582
+{txt}{space 9}age {c |}{col 14}{res}{space 2} 4.74e-06{col 26}{space 2} .0005364{col 37}{space 1}    0.01{col 46}{space 3}0.993{col 54}{space 4}-.0010466{col 67}{space 3} .0010561
+{txt}{space 3}education {c |}{col 14}{res}{space 2}-.0054991{col 26}{space 2}  .001863{col 37}{space 1}   -2.95{col 46}{space 3}0.003{col 54}{space 4}-.0091506{col 67}{space 3}-.0018475
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 4.820195{col 26}{space 2} .0250389{col 37}{space 1}  192.51{col 46}{space 3}0.000{col 54}{space 4} 4.771118{col 67}{space 3} 4.869273
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{res}{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}            district{col 22}{c |}{space 1}       72{col 35}{space 1}        0{col 47}{result}{space 1}       72{col 61}{text} {col 62}{c |}
+{res}{col 1}{text} pri_activity_status{col 22}{c |}{space 1}       14{col 35}{space 1}        1{col 47}{result}{space 1}       13{col 61}{text} {col 62}{c |}
+{res}{col 1}{text}             year_mo{col 22}{c |}{space 1}       12{col 35}{space 1}        1{col 47}{result}{space 1}       11{col 61}{text}?{col 62}{c |}
+{res}{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+{res}{txt}
+{com}. 
+. eststo clear
+{txt}
+{com}. eststo est2: reghdfe log_daily_wage post_policy female post_female age education, absorb(i.district i.pri_activity_status i.year_mo) 
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 5 iterations)
+{res}{txt}note: {res}post_policy{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    24,423
+{txt}Absorbing 3 HDFE groups{col 51}F({res}   4{txt},{res}  24323{txt}){col 67}= {res}      2.51
+{txt}{col 51}Prob > F{col 67}= {res}    0.0396
+{txt}{col 51}R-squared{col 67}= {res}    0.0084
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0043
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0004
+{txt}{col 51}Root MSE{col 67}= {res}    0.9846
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}log_daily_~e{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 1}post_policy {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 6}female {c |}{col 14}{res}{space 2}-.0231564{col 26}{space 2} .0180824{col 37}{space 1}   -1.28{col 46}{space 3}0.200{col 54}{space 4}-.0585991{col 67}{space 3} .0122863
+{txt}{space 1}post_female {c |}{col 14}{res}{space 2} .0244452{col 26}{space 2} .0252609{col 37}{space 1}    0.97{col 46}{space 3}0.333{col 54}{space 4}-.0250678{col 67}{space 3} .0739582
+{txt}{space 9}age {c |}{col 14}{res}{space 2} 4.74e-06{col 26}{space 2} .0005364{col 37}{space 1}    0.01{col 46}{space 3}0.993{col 54}{space 4}-.0010466{col 67}{space 3} .0010561
+{txt}{space 3}education {c |}{col 14}{res}{space 2}-.0054991{col 26}{space 2}  .001863{col 37}{space 1}   -2.95{col 46}{space 3}0.003{col 54}{space 4}-.0091506{col 67}{space 3}-.0018475
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 4.820195{col 26}{space 2} .0250389{col 37}{space 1}  192.51{col 46}{space 3}0.000{col 54}{space 4} 4.771118{col 67}{space 3} 4.869273
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{res}{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}            district{col 22}{c |}{space 1}       72{col 35}{space 1}        0{col 47}{result}{space 1}       72{col 61}{text} {col 62}{c |}
+{res}{col 1}{text} pri_activity_status{col 22}{c |}{space 1}       14{col 35}{space 1}        1{col 47}{result}{space 1}       13{col 61}{text} {col 62}{c |}
+{res}{col 1}{text}             year_mo{col 22}{c |}{space 1}       12{col 35}{space 1}        1{col 47}{result}{space 1}       11{col 61}{text}?{col 62}{c |}
+{res}{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+{res}{txt}
+{com}. 
+. *Add fixed effects information
+. estadd local Time_FE "yes"
+
+{txt}added macro:
+            e(Time_FE) : "{res:yes}"
+
+{com}. estadd local District_FE "yes"
+
+{txt}added macro:
+        e(District_FE) : "{res:yes}"
+
+{com}. estadd local Occupation_FE "yes"
+
+{txt}added macro:
+      e(Occupation_FE) : "{res:yes}"
+
+{com}. 
+. 
+. *Generate LaTeX code for the table, hiding specific control variables
+. esttab est2 using reg2_final.tex, ///
+> cells(b(fmt(3) star) se(fmt(3) par)) ///
+> label nodepvars nomtitle nonumber ///
+> noobs collabels("Dependent Variable: Log Daily Wage" "") ///
+> varlabels(post_policy "Post Policy" female "Female" post_female "Post Policy*Female" age "Age" education "Education") ///
+> stats(r2 N) ///
+> starlevels(* 0.10 * 0.05 ** 0.01) ///
+> addnote("***p$<$0.01, ** p$<$0.05, * p$<$0.1") ///
+> title("Regression Results showing Gender gap in wages Post Policy") ///
+> replace
+{res}{txt}(output written to {browse  `"reg2_final.tex"'})
+
+{com}. 
+{txt}end of do-file
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Admin\Documents\Anika_RA_CEDA.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}22 Apr 2024, 23:31:04
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}

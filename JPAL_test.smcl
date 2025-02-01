@@ -1,0 +1,863 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Administrator\Downloads\JPAL\JPAL STATA test\JPAL_test.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}10 Apr 2024, 13:46:06
+
+{com}. cd "C:\Users\Administrator\Downloads\JPAL\JPAL STATA test"
+{res}C:\Users\Administrator\Downloads\JPAL\JPAL STATA test
+
+{com}. do "C:\Users\ADMINI~1\AppData\Local\Temp\STD2b24_000000.tmp"
+{txt}
+{com}. 
+. *Section 1
+. *1. importing data set in excel format and saving the same in .dta format in stata 
+. import excel "Data for Stata Test_2024 (1).xlsx", sheet("Data") firstrow clear
+{res}{txt}
+{com}. save "Data for Stata Test_2024.dta" , replace
+{txt}file Data for Stata Test_2024.dta saved
+
+{com}. 
+. *importing the supplementary dataset and renaming the matching variable in those two datasets as town_id
+. import excel "Town Names for Stata Test_2024 (1).xlsx", sheet("Sheet1") firstrow clear
+{res}{txt}
+{com}. rename TownID town_id
+{res}{txt}
+{com}. 
+. *2. merging the datasets with matching variable i.e., town_id 
+. merge 1:m town_id using "Data for Stata Test_2024.dta"
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}              52
+{txt}{col 9}from master{col 30}{res}               1{txt}  (_merge==1)
+{col 9}from using{col 30}{res}              51{txt}  (_merge==2)
+
+{col 5}matched{col 30}{res}           6,970{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. *dropping the irrelevant towns 
+. drop if _merge !=3
+{txt}(52 observations deleted)
+
+{com}. drop _merge
+{txt}
+{com}. 
+. *3. creating numeric variable of district (which earlier was in string)
+. encode district, gen(dist_id)
+{txt}
+{com}. 
+. *4. creating a unique id for each observation so that first three digits are town id. 
+. sort town_id dist_id
+{txt}
+{com}. bys town_id : gen poll_id = _n
+{txt}
+{com}. ssc install unique 
+{txt}checking {hilite:unique} consistency and verifying not already installed...
+all files already exist and are up to date.
+
+{com}. unique town_id poll_id
+{txt}Number of unique values of town_id poll_id is  {res}6970
+{txt}Number of records is  {res}6970
+{txt}
+{com}. gen unique_id =town_id*1000+poll_id
+{txt}
+{com}. 
+. *5. identifying missing data 
+. replace  registered_total = . if registered_total == -999
+{txt}(20 real changes made, 20 to missing)
+
+{com}. 
+. *6. creating a dummy variable for each of town_id 
+. tabulate town_id, generate(town_id)
+
+    {txt}Town ID {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+        171 {c |}{res}        270        3.87        3.87
+{txt}        172 {c |}{res}        319        4.58        8.45
+{txt}        173 {c |}{res}        253        3.63       12.08
+{txt}        175 {c |}{res}        288        4.13       16.21
+{txt}        176 {c |}{res}        274        3.93       20.14
+{txt}        177 {c |}{res}        279        4.00       24.15
+{txt}        190 {c |}{res}        256        3.67       27.82
+{txt}        191 {c |}{res}        302        4.33       32.15
+{txt}        192 {c |}{res}        218        3.13       35.28
+{txt}        193 {c |}{res}        227        3.26       38.54
+{txt}        195 {c |}{res}        225        3.23       41.76
+{txt}        196 {c |}{res}        248        3.56       45.32
+{txt}        197 {c |}{res}        245        3.52       48.84
+{txt}        198 {c |}{res}        237        3.40       52.24
+{txt}        199 {c |}{res}        247        3.54       55.78
+{txt}        200 {c |}{res}        222        3.19       58.97
+{txt}        201 {c |}{res}        241        3.46       62.42
+{txt}        208 {c |}{res}        294        4.22       66.64
+{txt}        210 {c |}{res}        251        3.60       70.24
+{txt}        211 {c |}{res}        239        3.43       73.67
+{txt}        212 {c |}{res}        233        3.34       77.02
+{txt}        213 {c |}{res}        290        4.16       81.18
+{txt}        235 {c |}{res}        254        3.64       84.82
+{txt}        236 {c |}{res}        295        4.23       89.05
+{txt}        237 {c |}{res}        260        3.73       92.78
+{txt}        238 {c |}{res}        243        3.49       96.27
+{txt}        239 {c |}{res}        260        3.73      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      6,970      100.00
+{txt}
+{com}. 
+. *7. lablelling variables as 'ID variable', 'Electoral data' or 'Intervention'
+. label variable town_id "ID Variable"
+{txt}
+{com}. label variable poll_id "ID Variable"
+{txt}
+{com}. label variable unique_id "ID Variable"
+{txt}
+{com}. label variable dist_id "ID Variable"
+{txt}
+{com}. label variable turnout_total "Electoral data"
+{txt}
+{com}. label variable turnout_male  "Electoral data"
+{txt}
+{com}. label variable turnout_female "Electoral data"
+{txt}
+{com}. label variable registered_total "Electoral data"
+{txt}
+{com}. label variable registered_male "Electoral data"
+{txt}
+{com}. label variable registered_female "Electoral data"
+{txt}
+{com}. label variable treatment_phase "Intervention"
+{txt}
+{com}. 
+. *8.labelling values for treatment variable 
+. label define treat 0 "not-treated" 1 "treated"
+{txt}
+{com}. label values treatment treat
+{txt}
+{com}. sort town_id dist_id
+{txt}
+{com}. 
+. 
+. *Section 2
+. *9. Taking out the summary for turnout_total to calculate the average (mean) turnout rate, minimum and maximum 
+. * The total turnout rate on average is approx. 465, with 0 being the lowest turnout and 1045 being the highest turnout rates.  
+. * summarize turnout_total to get statistics, including the max
+. summarize turnout_total
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+turnout_to~l {c |}{res}      6,970    464.9317    153.7471          0       1045
+{txt}
+{com}. summarize turnout_total, detail
+
+                       {txt}Electoral data
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}      166              0
+{txt} 5%    {res}      233              0
+{txt}10%    {res}    271.5              0       {txt}Obs         {res}      6,970
+{txt}25%    {res}      353              0       {txt}Sum of Wgt. {res}      6,970
+
+{txt}50%    {res}      456                      {txt}Mean          {res} 464.9317
+                        {txt}Largest       Std. Dev.     {res} 153.7471
+{txt}75%    {res}      564           1005
+{txt}90%    {res}      667           1013       {txt}Variance      {res} 23638.17
+{txt}95%    {res}      739           1040       {txt}Skewness      {res} .3623462
+{txt}99%    {res}      856           1045       {txt}Kurtosis      {res} 3.033466
+{txt}
+{com}. * store the max value in a local macro
+. local maxturnout = r(max)
+{txt}
+{com}. * count the observations where turnout_total equals the max value, number of pooling booths recording the highest turnout rate is 1.  
+. count if turnout_total == `maxturnout'
+  {res}1
+{txt}
+{com}. 
+. 
+. *10. tabulating the number of booths in phases 1 and 2 of the study 
+. tab treatment if treatment_phase == 1 | treatment_phase == 2
+
+  {txt}treatment {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+not-treated {c |}{res}      3,504       50.27       50.27
+{txt}    treated {c |}{res}      3,466       49.73      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      6,970      100.00
+{txt}
+{com}. 
+. *11. tabulating the average turnout rate for females for each district having a total turnout rate of 75% or above 
+. * preserve the original dataset
+. preserve
+{txt}
+{com}. keep if turnout_total >= 75
+{txt}(10 observations deleted)
+
+{com}. collapse (mean) turnout_female, by (district)
+{txt}
+{com}. * to revert to the original dataset
+. restore
+{txt}
+{com}. 
+. *12. Using the data to test for the significance of the difference in the average female turnout rates for tratement vs control.
+.  ttest turnout_female, by(treatment)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+not-trea {c |}{res}{col 12}  3,504{col 22} 207.6612{col 34} 1.173063{col 46} 69.43901{col 58} 205.3613{col 70} 209.9612
+ {txt}treated {c |}{res}{col 12}  3,466{col 22} 215.6298{col 34}  1.21782{col 46} 71.69641{col 58} 213.2421{col 70} 218.0176
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  6,970{col 22} 211.6238{col 34} .8465788{col 46} 70.67793{col 58} 209.9643{col 70} 213.2834
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-7.968588{col 34} 1.690611{col 58} -11.2827{col 70}-4.654475
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}not-trea{txt}) - mean({res}treated{txt})                         t = {res} -4.7134
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    6968
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.0000         {txt}Pr(|T| > |t|) = {res}0.0000          {txt}Pr(T > t) = {res}1.0000
+{txt}
+{com}. *The average turnout rate for females is higher in treatment pooling booths (which is approximately 216) than control booths (which is 208 approx.) 
+. *The difference is significant as the treatment mean is different than control mean and p value for left tailed and two tailed test is 0, is very less than 0.05 or 0.01 and thus significant at 5 or 1% level of signifiance.
+. 
+. *13. creating a bar graph which shows the difference in turnout between treatment and control pooling booths by gender and by total turnout
+. * first creating new treatment numeric variable
+. tostring treatment, generate(treatment_str)
+{txt}treatment_str generated as {res:str1}
+
+{com}. generate treatment_status = 0 if treatment_str == "0"
+{txt}(3,466 missing values generated)
+
+{com}. replace treatment_status = 1 if treatment_str == "1"
+{txt}(3,466 real changes made)
+
+{com}. * plotting the graph
+. preserve
+{txt}
+{com}. graph bar turnout_total turnout_female, over(treatment_status) legend(label(1 "Treatment") label(2 "Control")) title("Turnout by Treatment Group") blabel(bar, position(center) format(%2.2f)) graphregion(color(white)) bgcolor(white)
+{txt}(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+(note: scheme s2color not found, using s2color)
+{err}system limit exceeded - see manual
+{res}(note: default scheme s2color not found, ignored)
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+relsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+16 in the current scheme for class
+relsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+22 in the current scheme for class
+relsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+relsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+barlabelstyle)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+7 in the current scheme for class
+gsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+margin)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+gsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+margin)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+9 in the current scheme for class
+compass2dir)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+5 in the current scheme for class
+textboxstyle)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+3 in the current scheme for class
+gsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+barlabelpos)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+4 in the current scheme for class
+intensity)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+4 in the current scheme for class
+intensity)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+dottypestyle)
+{p_end}
+{com}{txt}{p 0 8} (note:  linestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+23 in the current scheme for class
+linestyle)
+{p_end}
+{com}{txt}{p 0 8} (note:  shadestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+9 in the current scheme for class
+areastyle)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+3 in the current scheme for class
+gsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+symbol)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+7 in the current scheme for class
+symbolsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+14 in the current scheme for class
+symbol)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+7 in the current scheme for class
+symbolsize)
+{p_end}
+{com}{txt}{p 0 8} (note:  markerstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+16 in the current scheme for class
+relsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+relsize)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+medtypestyle)
+{p_end}
+{com}{txt}{p 0 8} (note:  linestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+21 in the current scheme for class
+linestyle)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+8 in the current scheme for class
+markerstyle)
+{p_end}
+{com}{txt}{p 0 8} (note:  barstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+barlabelstyle)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+barlabelpos)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+medtypestyle)
+{p_end}
+{com}{txt}{p 0 8} (note:  textboxstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  tickstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  gridstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  ticksetstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  ticksetstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  ticksetstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  ticksetstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  axisstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{com}{txt}{p 0 8} (note:  textboxstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+tb_orientstyle)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+transformstyle)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+transformstyle)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+9 in the current scheme for class
+compass2dir)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{com}{txt}{p 0 8} (note:  textboxstyle axis_title {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  textboxstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  axisstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+margin)
+{p_end}
+{com}{txt}{p 0 8} (note:  linestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+horizontal)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+vertical)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+9 in the current scheme for class
+compass2dir)
+{p_end}
+{com}{txt}{p 0 8} (note:  linestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  linestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle foreground {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  shadestyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+2 in the current scheme for class
+yesno)
+{p_end}
+{p 0 4 2}
+{txt}(note:  _restyle could not find style indexed 
+1 in the current scheme for class
+margin)
+{p_end}
+{com}{txt}{p 0 8} (note:  graphstyle graph {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  graphstyle  {com}{txt}not found in scheme, default attributes used){p_end}
+{com}{txt}{p 0 8} (note:  color background {com}{txt}not found in scheme, default attributes used){p_end}
+{err}unknown egen function group()
+{txt}{search r(133), local:r(133);}
+
+end of do-file
+
+{search r(133), local:r(133);}
+
+{com}. do "C:\Users\ADMINI~1\AppData\Local\Temp\STD2b24_000000.tmp"
+{txt}
+{com}.                  
+. *Section 3       
+. *14. to show the effect of treatment on total turnout, regression is performed by regressing the dependent variable total turnout 
+. *on independent variables: treatment, all dummies of town id and registered turnout (registered total)
+. regress turnout_total treatment i.town_id registered_total
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}     6,950
+{txt}{hline 13}{c +}{hline 34}   F(28, 6921)     = {res}    30.86
+{txt}       Model {c |} {res} 18248434.5        28  651729.803   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res}  146160936     6,921  21118.4707   {txt}R-squared       ={res}    0.1110
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.1074
+{txt}       Total {c |} {res}  164409370     6,949  23659.4287   {txt}Root MSE        =   {res} 145.32
+
+{txt}{hline 17}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   turnout_total{col 18}{c |}      Coef.{col 30}   Std. Err.{col 42}      t{col 50}   P>|t|{col 58}     [95% Con{col 71}f. Interval]
+{hline 17}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}treatment {c |}{col 18}{res}{space 2} 8.300772{col 30}{space 2} 3.486812{col 41}{space 1}    2.38{col 50}{space 3}0.017{col 58}{space 4} 1.465551{col 71}{space 3} 15.13599
+{txt}{space 16} {c |}
+{space 9}town_id {c |}
+{space 12}172  {c |}{col 18}{res}{space 2} 73.42728{col 30}{space 2} 12.01768{col 41}{space 1}    6.11{col 50}{space 3}0.000{col 58}{space 4} 49.86895{col 71}{space 3} 96.98562
+{txt}{space 12}173  {c |}{col 18}{res}{space 2}  5.05659{col 30}{space 2} 12.72927{col 41}{space 1}    0.40{col 50}{space 3}0.691{col 58}{space 4}-19.89669{col 71}{space 3} 30.00987
+{txt}{space 12}175  {c |}{col 18}{res}{space 2} 39.52095{col 30}{space 2} 12.33147{col 41}{space 1}    3.20{col 50}{space 3}0.001{col 58}{space 4} 15.34749{col 71}{space 3} 63.69442
+{txt}{space 12}176  {c |}{col 18}{res}{space 2} 42.37771{col 30}{space 2}  12.4628{col 41}{space 1}    3.40{col 50}{space 3}0.001{col 58}{space 4}  17.9468{col 71}{space 3} 66.80862
+{txt}{space 12}177  {c |}{col 18}{res}{space 2} 33.25727{col 30}{space 2} 12.41744{col 41}{space 1}    2.68{col 50}{space 3}0.007{col 58}{space 4} 8.915275{col 71}{space 3} 57.59926
+{txt}{space 12}190  {c |}{col 18}{res}{space 2} 53.81802{col 30}{space 2}  12.6784{col 41}{space 1}    4.24{col 50}{space 3}0.000{col 58}{space 4} 28.96447{col 71}{space 3} 78.67158
+{txt}{space 12}191  {c |}{col 18}{res}{space 2} 36.63602{col 30}{space 2} 12.17363{col 41}{space 1}    3.01{col 50}{space 3}0.003{col 58}{space 4} 12.77196{col 71}{space 3} 60.50007
+{txt}{space 12}192  {c |}{col 18}{res}{space 2} 110.2323{col 30}{space 2} 13.23391{col 41}{space 1}    8.33{col 50}{space 3}0.000{col 58}{space 4} 84.28976{col 71}{space 3} 136.1748
+{txt}{space 12}193  {c |}{col 18}{res}{space 2} 91.50515{col 30}{space 2}  13.0866{col 41}{space 1}    6.99{col 50}{space 3}0.000{col 58}{space 4}  65.8514{col 71}{space 3} 117.1589
+{txt}{space 12}195  {c |}{col 18}{res}{space 2} 13.15287{col 30}{space 2} 13.14985{col 41}{space 1}    1.00{col 50}{space 3}0.317{col 58}{space 4}-12.62487{col 71}{space 3} 38.93062
+{txt}{space 12}196  {c |}{col 18}{res}{space 2} 114.2868{col 30}{space 2} 12.78551{col 41}{space 1}    8.94{col 50}{space 3}0.000{col 58}{space 4} 89.22327{col 71}{space 3} 139.3503
+{txt}{space 12}197  {c |}{col 18}{res}{space 2} 130.1408{col 30}{space 2} 12.82718{col 41}{space 1}   10.15{col 50}{space 3}0.000{col 58}{space 4} 104.9956{col 71}{space 3}  155.286
+{txt}{space 12}198  {c |}{col 18}{res}{space 2} 73.40167{col 30}{space 2} 12.95005{col 41}{space 1}    5.67{col 50}{space 3}0.000{col 58}{space 4}  48.0156{col 71}{space 3} 98.78775
+{txt}{space 12}199  {c |}{col 18}{res}{space 2} 111.2434{col 30}{space 2} 12.79615{col 41}{space 1}    8.69{col 50}{space 3}0.000{col 58}{space 4} 86.15898{col 71}{space 3} 136.3277
+{txt}{space 12}200  {c |}{col 18}{res}{space 2} 175.9421{col 30}{space 2} 13.18481{col 41}{space 1}   13.34{col 50}{space 3}0.000{col 58}{space 4} 150.0958{col 71}{space 3} 201.7883
+{txt}{space 12}201  {c |}{col 18}{res}{space 2}   114.05{col 30}{space 2}  12.8852{col 41}{space 1}    8.85{col 50}{space 3}0.000{col 58}{space 4} 88.79101{col 71}{space 3} 139.3089
+{txt}{space 12}208  {c |}{col 18}{res}{space 2} 92.99202{col 30}{space 2}  12.2498{col 41}{space 1}    7.59{col 50}{space 3}0.000{col 58}{space 4} 68.97865{col 71}{space 3} 117.0054
+{txt}{space 12}210  {c |}{col 18}{res}{space 2} 80.70464{col 30}{space 2} 12.74249{col 41}{space 1}    6.33{col 50}{space 3}0.000{col 58}{space 4} 55.72546{col 71}{space 3} 105.6838
+{txt}{space 12}211  {c |}{col 18}{res}{space 2} 87.67733{col 30}{space 2} 12.93843{col 41}{space 1}    6.78{col 50}{space 3}0.000{col 58}{space 4} 62.31404{col 71}{space 3} 113.0406
+{txt}{space 12}212  {c |}{col 18}{res}{space 2} 128.9909{col 30}{space 2} 12.99861{col 41}{space 1}    9.92{col 50}{space 3}0.000{col 58}{space 4} 103.5096{col 71}{space 3} 154.4721
+{txt}{space 12}213  {c |}{col 18}{res}{space 2} 44.21225{col 30}{space 2} 12.31039{col 41}{space 1}    3.59{col 50}{space 3}0.000{col 58}{space 4} 20.08012{col 71}{space 3} 68.34439
+{txt}{space 12}235  {c |}{col 18}{res}{space 2} 30.54006{col 30}{space 2} 12.71587{col 41}{space 1}    2.40{col 50}{space 3}0.016{col 58}{space 4} 5.613052{col 71}{space 3} 55.46707
+{txt}{space 12}236  {c |}{col 18}{res}{space 2} 26.80373{col 30}{space 2} 12.26973{col 41}{space 1}    2.18{col 50}{space 3}0.029{col 58}{space 4} 2.751292{col 71}{space 3} 50.85617
+{txt}{space 12}237  {c |}{col 18}{res}{space 2} 58.78445{col 30}{space 2} 12.64007{col 41}{space 1}    4.65{col 50}{space 3}0.000{col 58}{space 4} 34.00604{col 71}{space 3} 83.56286
+{txt}{space 12}238  {c |}{col 18}{res}{space 2} 13.90948{col 30}{space 2}  12.8934{col 41}{space 1}    1.08{col 50}{space 3}0.281{col 58}{space 4}-11.36554{col 71}{space 3}  39.1845
+{txt}{space 12}239  {c |}{col 18}{res}{space 2} 67.86267{col 30}{space 2} 12.62711{col 41}{space 1}    5.37{col 50}{space 3}0.000{col 58}{space 4} 43.10966{col 71}{space 3} 92.61567
+{txt}{space 16} {c |}
+registered_total {c |}{col 18}{res}{space 2} .0581556{col 30}{space 2}  .003815{col 41}{space 1}   15.24{col 50}{space 3}0.000{col 58}{space 4}  .050677{col 71}{space 3} .0656343
+{txt}{space 11}_cons {c |}{col 18}{res}{space 2} 337.2165{col 30}{space 2} 9.713591{col 41}{space 1}   34.72{col 50}{space 3}0.000{col 58}{space 4} 318.1749{col 71}{space 3} 356.2581
+{txt}{hline 17}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. *outputting results in excel 
+. ssc install outreg2
+{txt}checking {hilite:outreg2} consistency and verifying not already installed...
+all files already exist and are up to date.
+
+{com}. outreg2 using "regression_results.xlsx", replace
+{txt}{browse `"regression_results.xlsx"'}
+{browse `"C:\Users\Administrator\Downloads\JPAL\JPAL STATA test"' :dir}{com} : {txt}{stata `"seeout using "regression_results.txt""':seeout}
+
+{com}. 
+. *15. calculating mean turnout for the control group and treatment, mean turnout for control group is 461.25  
+. summarize turnout_total if treatment == 0
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+turnout_to~l {c |}{res}      3,504     461.254    151.3161          0       1005
+{txt}
+{com}. summarize turnout_total if treatment == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+turnout_to~l {c |}{res}      3,466    468.6497       156.1          1       1045
+{txt}
+{com}. 
+. *16. the dependent variable is turnout_total here. 
+. 
+. *17. Mean for total turnout for control and treatment is already calculated in question 15, thus change in the dependent variable after intervention or difference between treatment and control of turnout is -7.4
+. 
+. *18. difference in turnout between treatment and control is statistically significant at 5 % level of significance, as the p value for two tailed test is 0.04 and for left tailed test is 0.02(less than 0.05)
+. ttest turnout_total, by(treatment)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+not-trea {c |}{res}{col 12}  3,504{col 22}  461.254{col 34} 2.556249{col 46} 151.3161{col 58} 456.2421{col 70} 466.2659
+ {txt}treated {c |}{res}{col 12}  3,466{col 22} 468.6497{col 34} 2.651482{col 46}    156.1{col 58} 463.4511{col 70} 473.8484
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  6,970{col 22} 464.9317{col 34}  1.84158{col 46} 153.7471{col 58} 461.3217{col 70} 468.5418
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-7.395745{col 34} 3.682413{col 58}-14.61439{col 70}-.1770951
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}not-trea{txt}) - mean({res}treated{txt})                         t = {res} -2.0084
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    6968
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.0223         {txt}Pr(|T| > |t|) = {res}0.0446          {txt}Pr(T > t) = {res}0.9777
+{txt}
+{com}. 
+.  
+. 
+{txt}end of do-file
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Administrator\Downloads\JPAL\JPAL STATA test\JPAL_test.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}10 Apr 2024, 13:48:39
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
